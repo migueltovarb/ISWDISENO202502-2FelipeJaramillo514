@@ -1,0 +1,11 @@
+com\example\vehicleapi\service\VehicleService.class
+com\example\vehicleapi\dto\VehicleRequest.class
+com\example\vehicleapi\exception\ResourceNotFoundException.class
+com\example\vehicleapi\entity\Vehicle.class
+com\example\vehicleapi\VehicleApiApplication.class
+com\example\vehicleapi\repository\VehicleRepository.class
+com\example\vehicleapi\dto\VehicleResponse.class
+com\example\vehicleapi\entity\Vehicle$VehicleBuilder.class
+com\example\vehicleapi\controller\VehicleController.class
+com\example\vehicleapi\dto\VehicleResponse$VehicleResponseBuilder.class
+com\example\vehicleapi\service\impl\VehicleServiceImpl.class
