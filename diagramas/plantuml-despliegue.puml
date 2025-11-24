@@ -1,0 +1,93 @@
+@startuml
+title Vista de Despliegue - SGA
+top to bottom direction
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 120
+skinparam rectangle {
+  BackgroundColor #f8fbff
+  BorderColor #6a9ed8
+}
+
+' Dispositivos (fila superior)
+together {
+rectangle "Dispositivo usuarios administrativos" {
+  node "Navegador Web\n(HTTPS)" as AdminClient
+}
+
+rectangle "Dispositivo movil clientes" {
+  node "App Cliente\n(HTTPS)" as ClienteMovil
+}
+
+rectangle "Dispositivo movil operadores" {
+  node "App Operador\n(HTTPS)" as OperadorMovil
+}
+}
+
+' Servidor de aplicación con interfaces y módulos
+node "Servidor de aplicacion\nOS Linux\nSpring Boot + Tomcat\nCPU 4 nucleos, RAM 8GB\nAlmacenamiento 1TB" as App {
+  interface "HTTPS" as Ihttps
+  interface "TCP/IP" as Itcp
+
+  together {
+    rectangle "Gestion de Usuarios" as GestUsuarios
+    rectangle "Gestion de Roles" as GestRoles
+    rectangle "Gestion de Docentes" as GestDocentes
+    rectangle "Gestion de Estudiantes" as GestEstudiantes
+    rectangle "Gestion de Asignaturas" as GestAsignaturas
+  }
+  together {
+    rectangle "Gestion de Inscripciones" as GestInscripciones
+    rectangle "Gestion de Calificaciones" as GestCalificaciones
+    rectangle "Gestion de Reportes" as GestReportes
+    rectangle "Gestion de Notificaciones" as GestNotificaciones
+    rectangle "Dashboard/Consultas" as GestDashboard
+  }
+}
+
+' Servidor de BD
+node "Servidor de base de datos\nOS Linux\nCPU 4 nucleos, RAM 32GB\nAlmacenamiento 2TB" as DB {
+  interface "TCP/IP" as ItcpDb
+  database "MongoDB Cluster" as Mongo
+}
+
+' Conexiones externas
+AdminClient --> Ihttps
+ClienteMovil --> Ihttps
+OperadorMovil --> Ihttps
+
+' App a módulos (implícitos dentro del nodo)
+Ihttps --> GestUsuarios
+Ihttps --> GestInscripciones
+Ihttps --> GestCalificaciones
+Ihttps --> GestReportes
+Ihttps --> GestNotificaciones
+Ihttps --> GestDashboard
+
+' Módulos a BD
+GestUsuarios --> Itcp
+GestRoles --> Itcp
+GestDocentes --> Itcp
+GestEstudiantes --> Itcp
+GestAsignaturas --> Itcp
+GestInscripciones --> Itcp
+GestCalificaciones --> Itcp
+GestReportes --> Itcp
+GestNotificaciones --> Itcp
+GestDashboard --> Itcp
+
+Itcp --> ItcpDb
+ItcpDb --> Mongo
+
+' Salidas a clientes (push/email/PDF)
+GestNotificaciones ..> AdminClient : push/email
+GestNotificaciones ..> ClienteMovil : push
+GestNotificaciones ..> OperadorMovil : push
+
+GestReportes ..> AdminClient : descarga PDF
+GestReportes ..> ClienteMovil : descarga PDF
+GestReportes ..> OperadorMovil : descarga PDF
+
+@enduml

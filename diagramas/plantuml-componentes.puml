@@ -1,0 +1,95 @@
+@startuml
+title Componentes SGA - Ordenado
+left to right direction
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam linetype ortho
+skinparam rectangle {
+  BackgroundColor #e8f6ff
+  BorderColor #5a9bd6
+}
+
+package "Identidad" {
+  component "RolService" as Roles
+  component "UsuarioService" as Usuarios
+  component "AuthService" as Auth
+  interface "API_Roles" as IRoles
+  interface "API_Usuarios" as IUsuarios
+  interface "API_Login" as IAuth
+  Roles - IRoles
+  Usuarios - IUsuarios
+  Auth - IAuth
+}
+
+package "Académico" {
+  component "DocenteService" as Docentes
+  component "EstudianteService" as Estudiantes
+  component "AsignaturaService" as Asignaturas
+  component "InscripcionService" as Inscripciones
+  component "CalificacionService" as Calificaciones
+  component "ReporteService" as Reportes
+  interface "API_Docentes" as IDocentes
+  interface "API_Estudiantes" as IEstudiantes
+  interface "API_Asignaturas" as IAsignaturas
+  interface "API_Inscripciones" as IInscripciones
+  interface "API_Calificaciones" as ICalificaciones
+  interface "API_Reportes" as IReportes
+  Docentes - IDocentes
+  Estudiantes - IEstudiantes
+  Asignaturas - IAsignaturas
+  Inscripciones - IInscripciones
+  Calificaciones - ICalificaciones
+  Reportes - IReportes
+}
+
+package "Soporte" {
+  component "NotificacionService" as Notificaciones
+  component "DashboardService" as Dashboard
+  component "BusquedaService" as Busqueda
+  interface "API_Notificaciones" as INotificaciones
+  interface "API_Dashboard" as IDashboard
+  interface "API_Busqueda" as IBusqueda
+  Notificaciones - INotificaciones
+  Dashboard - IDashboard
+  Busqueda - IBusqueda
+}
+
+package "Infra" {
+  component "Repositorios (Mongo)" as Repos
+  database "MongoDB" as Mongo
+  component "SMTP Gateway" as SMTP
+  component "Libreria PDF" as PDF
+}
+
+' Dependencias principales (alineadas de izquierda a derecha)
+Auth --> Usuarios
+Auth --> Roles
+Docentes --> Usuarios
+Estudiantes --> Usuarios
+Asignaturas --> Docentes
+Inscripciones --> Estudiantes
+Inscripciones --> Asignaturas
+Calificaciones --> Inscripciones
+Calificaciones --> Docentes
+Reportes --> Calificaciones
+Reportes --> Estudiantes
+Notificaciones --> Usuarios
+Dashboard --> Estudiantes
+Dashboard --> Asignaturas
+Dashboard --> Inscripciones
+Dashboard --> Calificaciones
+Busqueda --> Usuarios
+Busqueda --> Asignaturas
+
+' Persistencia agregada por bloque
+Identidad ..> Repos
+Académico ..> Repos
+Soporte ..> Repos
+Repos --> Mongo
+
+' Integraciones externas
+Notificaciones ..> SMTP : envia correo
+Reportes ..> PDF : genera PDF
+
+@enduml

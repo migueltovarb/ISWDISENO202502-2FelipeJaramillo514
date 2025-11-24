@@ -1,0 +1,281 @@
+@startuml
+title Diagrama de Clases - SGA
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam ClassFontStyle plain
+
+abstract class Usuario {
+  -id : Integer
+  -nombre : String
+  -apellido : String
+  -username : String
+  -correo : String
+  -contrasena : String
+  -rol : Rol
+  +Usuario()
+  +getId() : Integer
+  +setId(Integer) : void
+  +getNombre() : String
+  +setNombre(String) : void
+  +getApellido() : String
+  +setApellido(String) : void
+  +getUsername() : String
+  +setUsername(String) : void
+  +getCorreo() : String
+  +setCorreo(String) : void
+  +getContrasena() : String
+  +setContrasena(String) : void
+  +getRol() : Rol
+  +setRol(Rol) : void
+  +toString() : String
+}
+
+class Rol {
+  -id : Integer
+  -nombre : RolNombre
+  -permisos : List<String>
+  +Rol()
+  +getId() : Integer
+  +setId(Integer) : void
+  +getNombre() : RolNombre
+  +setNombre(RolNombre) : void
+  +getPermisos() : List<String>
+  +setPermisos(List<String>) : void
+  +toString() : String
+}
+
+class Administrador {
+  +Administrador()
+  +toString() : String
+}
+
+class Docente {
+  -departamento : String
+  +Docente()
+  +getDepartamento() : String
+  +setDepartamento(String) : void
+  +toString() : String
+}
+
+class Estudiante {
+  -programa : String
+  -semestre : int
+  +Estudiante()
+  +getPrograma() : String
+  +setPrograma(String) : void
+  +getSemestre() : int
+  +setSemestre(int) : void
+  +toString() : String
+}
+
+class Asignatura {
+  -idAsignatura : Integer
+  -codigo : String
+  -nombre : String
+  -creditos : int
+  -activa : boolean
+  -docente : Docente
+  +Asignatura()
+  +getIdAsignatura() : Integer
+  +setIdAsignatura(Integer) : void
+  +getCodigo() : String
+  +setCodigo(String) : void
+  +getNombre() : String
+  +setNombre(String) : void
+  +getCreditos() : int
+  +setCreditos(int) : void
+  +isActiva() : boolean
+  +setActiva(boolean) : void
+  +getDocente() : Docente
+  +setDocente(Docente) : void
+  +toString() : String
+}
+
+class Inscripcion {
+  -idInscripcion : Integer
+  -semestre : int
+  -fechaInscripcion : LocalDate
+  -estado : EstadoInscripcion
+  -estudiante : Estudiante
+  -asignatura : Asignatura
+  +Inscripcion()
+  +getIdInscripcion() : Integer
+  +setIdInscripcion(Integer) : void
+  +getSemestre() : int
+  +setSemestre(int) : void
+  +getFechaInscripcion() : LocalDate
+  +setFechaInscripcion(LocalDate) : void
+  +getEstado() : EstadoInscripcion
+  +setEstado(EstadoInscripcion) : void
+  +getEstudiante() : Estudiante
+  +setEstudiante(Estudiante) : void
+  +getAsignatura() : Asignatura
+  +setAsignatura(Asignatura) : void
+  +toString() : String
+}
+
+class Calificacion {
+  -idCalificacion : Integer
+  -notaParcial : double
+  -notaFinal : double
+  -retroalimentacion : String
+  -fechaRegistro : LocalDate
+  -activa : boolean
+  -inscripcion : Inscripcion
+  -docente : Docente
+  +Calificacion()
+  +getIdCalificacion() : Integer
+  +setIdCalificacion(Integer) : void
+  +getNotaParcial() : double
+  +setNotaParcial(double) : void
+  +getNotaFinal() : double
+  +setNotaFinal(double) : void
+  +getRetroalimentacion() : String
+  +setRetroalimentacion(String) : void
+  +getFechaRegistro() : LocalDate
+  +setFechaRegistro(LocalDate) : void
+  +isActiva() : boolean
+  +setActiva(boolean) : void
+  +getInscripcion() : Inscripcion
+  +setInscripcion(Inscripcion) : void
+  +getDocente() : Docente
+  +setDocente(Docente) : void
+  +toString() : String
+}
+
+class CambioCalificacion {
+  -idCambio : Integer
+  -fechaCambio : LocalDate
+  -valorAnterior : double
+  -valorNuevo : double
+  -motivo : String
+  -calificacion : Calificacion
+  -administrador : Administrador
+  +CambioCalificacion()
+  +getIdCambio() : Integer
+  +setIdCambio(Integer) : void
+  +getFechaCambio() : LocalDate
+  +setFechaCambio(LocalDate) : void
+  +getValorAnterior() : double
+  +setValorAnterior(double) : void
+  +getValorNuevo() : double
+  +setValorNuevo(double) : void
+  +getMotivo() : String
+  +setMotivo(String) : void
+  +getCalificacion() : Calificacion
+  +setCalificacion(Calificacion) : void
+  +getAdministrador() : Administrador
+  +setAdministrador(Administrador) : void
+  +toString() : String
+}
+
+class HistorialAcademico {
+  -idHistorial : Integer
+  -promedioAcumulado : double
+  -estudiante : Estudiante
+  -calificaciones : List<Calificacion>
+  +HistorialAcademico()
+  +getIdHistorial() : Integer
+  +setIdHistorial(Integer) : void
+  +getPromedioAcumulado() : double
+  +setPromedioAcumulado(double) : void
+  +getEstudiante() : Estudiante
+  +setEstudiante(Estudiante) : void
+  +getCalificaciones() : List<Calificacion>
+  +setCalificaciones(List<Calificacion>) : void
+  +toString() : String
+}
+
+class Reporte {
+  -idReporte : Integer
+  -semestre : int
+  -fechaGeneracion : LocalDate
+  -rutaArchivoPdf : String
+  -numeroUnidadesCredito : Integer
+  -estudiante : Estudiante
+  -historialAcademico : HistorialAcademico
+  -calificaciones : List<Calificacion>
+  +Reporte()
+  +getIdReporte() : Integer
+  +setIdReporte(Integer) : void
+  +getSemestre() : int
+  +setSemestre(int) : void
+  +getFechaGeneracion() : LocalDate
+  +setFechaGeneracion(LocalDate) : void
+  +getRutaArchivoPdf() : String
+  +setRutaArchivoPdf(String) : void
+  +getNumeroUnidadesCredito() : Integer
+  +setNumeroUnidadesCredito(Integer) : void
+  +getEstudiante() : Estudiante
+  +setEstudiante(Estudiante) : void
+  +getHistorialAcademico() : HistorialAcademico
+  +setHistorialAcademico(HistorialAcademico) : void
+  +getCalificaciones() : List<Calificacion>
+  +setCalificaciones(List<Calificacion>) : void
+  +toString() : String
+}
+
+class Notificacion {
+  -id : Integer
+  -tipo : TipoNotificacion
+  -mensaje : String
+  -fechaEnvio : LocalDate
+  -leida : boolean
+  -usuario : Usuario
+  +Notificacion()
+  +getId() : Integer
+  +setId(Integer) : void
+  +getTipo() : TipoNotificacion
+  +setTipo(TipoNotificacion) : void
+  +getMensaje() : String
+  +setMensaje(String) : void
+  +getFechaEnvio() : LocalDate
+  +setFechaEnvio(LocalDate) : void
+  +isLeida() : boolean
+  +setLeida(boolean) : void
+  +getUsuario() : Usuario
+  +setUsuario(Usuario) : void
+  +toString() : String
+}
+
+class PasswordResetToken {
+  -id : Integer
+  -token : String
+  -fechaExpiracion : LocalDateTime
+  -usado : boolean
+  -usuario : Usuario
+  +PasswordResetToken()
+  +getId() : Integer
+  +setId(Integer) : void
+  +getToken() : String
+  +setToken(String) : void
+  +getFechaExpiracion() : LocalDateTime
+  +setFechaExpiracion(LocalDateTime) : void
+  +isUsado() : boolean
+  +setUsado(boolean) : void
+  +getUsuario() : Usuario
+  +setUsuario(Usuario) : void
+  +toString() : String
+}
+
+Rol "1" -- "0..*" Usuario : rol
+Administrador -|> Usuario
+Docente -|> Usuario
+Estudiante -|> Usuario
+Docente "1" -- "0..*" Asignatura : imparte
+Estudiante "1" -- "0..*" Inscripcion : realiza
+Asignatura "1" -- "0..*" Inscripcion : recibe
+Inscripcion "1" -- "0..*" Calificacion : genera
+Docente "1" -- "0..*" Calificacion : registra
+Calificacion "1" -- "0..*" CambioCalificacion : historial
+Administrador "1" -- "0..*" CambioCalificacion : aprueba
+Estudiante "1" -- "0..*" HistorialAcademico : tiene
+HistorialAcademico "1" -- "0..*" Calificacion : agrega
+Reporte "1" -- "1" HistorialAcademico : resume
+Reporte "1" -- "1" Estudiante : pertenece
+Reporte "1" -- "0..*" Calificacion : incluye
+Usuario "1" -- "0..*" Notificacion : recibe
+Usuario "1" -- "0..*" PasswordResetToken : tokenReset
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+title Vista de Contexto del Sistema de Gestión Académica
+left to right direction
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam actor {
+  BackgroundColor #ffffff
+  BorderColor #3b73d0
+}
+skinparam rectangle {
+  BackgroundColor #b3e6b3
+  BorderColor #2e8b57
+}
+
+actor Administrador
+actor Docente
+actor Estudiante
+
+rectangle "Sistema de Gestión Académica" as SGA
+rectangle "<<Sistema Externo>>\nServicio de Correo\n(SMTP Gateway)" as SMTP
+
+Administrador --> SGA : Gestiona usuarios (estudiantes, docentes),\n asiganturas, roles y consulta reportes.
+Docente --> SGA : Gestiona y consulta calificaciones\n de sus asignaturas asignadas.
+Estudiante --> SGA : Consulta su historial de notas\n y descarga reportes en PDF.
+SGA --> SMTP : Envía correos para recuperación de\n contraseña y notificaciones.
+
+@enduml

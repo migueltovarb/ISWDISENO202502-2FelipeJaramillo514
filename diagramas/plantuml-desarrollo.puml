@@ -1,0 +1,503 @@
+@startuml
+allowmixing
+title Vista de Desarrollo - SGA
+left to right direction
+skinparam nodesep 30
+skinparam ranksep 60
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam rectangle {
+  BackgroundColor #eef6ff
+  BorderColor #5a9bd6
+}
+
+package "Domain" {
+  package "Usuarios y Seguridad" {
+    class Usuario {
+      -id: Integer
+      -nombre: String
+      -apellido: String
+      -username: String
+      -correo: String
+      -contrasena: String
+      -rol: Rol
+    }
+    class Rol {
+      -id: Integer
+      -nombre: RolNombre
+      -permisos: List<String>
+    }
+    class Administrador {
+      -id: Integer
+      -usuario: Usuario
+    }
+    class Docente {
+      -id: Integer
+      -departamento: String
+      -usuario: Usuario
+    }
+    class Estudiante {
+      -id: Integer
+      -programa: String
+      -semestre: int
+      -usuario: Usuario
+    }
+    class Notificacion {
+      -id: Integer
+      -tipo: TipoNotificacion
+      -mensaje: String
+      -fechaEnvio: LocalDate
+      -leida: boolean
+      -usuario: Usuario
+    }
+    class PasswordResetToken {
+      -id: Integer
+      -token: String
+      -fechaExpiracion: LocalDateTime
+      -usado: boolean
+      -usuario: Usuario
+    }
+  }
+
+  package "Académico" {
+    class Asignatura {
+      -idAsignatura: Integer
+      -codigo: String
+      -nombre: String
+      -creditos: int
+      -activa: boolean
+      -docente: Docente
+    }
+    class Inscripcion {
+      -idInscripcion: Integer
+      -semestre: int
+      -fechaInscripcion: LocalDate
+      -estado: EstadoInscripcion
+      -estudiante: Estudiante
+      -asignatura: Asignatura
+    }
+    class Calificacion {
+      -idCalificacion: Integer
+      -notaParcial: double
+      -notaFinal: double
+      -retroalimentacion: String
+      -fechaRegistro: LocalDate
+      -activa: boolean
+      -inscripcion: Inscripcion
+      -docente: Docente
+    }
+    class CambioCalificacion {
+      -idCambio: Integer
+      -fechaCambio: LocalDate
+      -valorAnterior: double
+      -valorNuevo: double
+      -motivo: String
+      -calificacion: Calificacion
+      -administrador: Administrador
+    }
+    class HistorialAcademico {
+      -idHistorial: Integer
+      -promedioAcumulado: double
+      -estudiante: Estudiante
+      -calificaciones: List<Calificacion>
+    }
+    class Reporte {
+      -idReporte: Integer
+      -semestre: int
+      -fechaGeneracion: LocalDate
+      -rutaArchivoPdf: String
+      -numeroUnidadesCredito: Integer
+      -estudiante: Estudiante
+      -historialAcademico: HistorialAcademico
+      -calificaciones: List<Calificacion>
+    }
+  }
+}
+
+together {
+package "Controllers" {
+  class AuthController {
+    +login(req: LoginRequest): LoginResponse
+    +registrar(req: CrearUsuarioRequest): String
+    +solicitarReset(usuarioId: Integer): String
+    +consumirReset(token: String): String
+  }
+  class UsuarioController {
+    +crear(req: CrearUsuarioRequest): UsuarioDto
+    +listar(): List<UsuarioDto>
+    +obtener(id: Integer): UsuarioDto
+  }
+  class RolController {
+    +crear(req: CrearRolRequest): RolDto
+    +listar(): List<RolDto>
+  }
+  class DocenteController {
+    +crear(req: CrearDocenteRequest): Docente
+  }
+  class EstudianteController {
+    +crear(req: CrearEstudianteRequest): Estudiante
+  }
+  class AdministradorController {
+    +crearDesdeUsuario(usuarioId: Integer): Administrador
+  }
+  class AsignaturaController {
+    +crear(req: CrearAsignaturaRequest): AsignaturaDto
+    +listar(): List<AsignaturaDto>
+  }
+  class InscripcionController {
+    +crear(req: CrearInscripcionRequest): InscripcionDto
+    +listar(): List<InscripcionDto>
+  }
+  class CalificacionController {
+    +crear(req: CrearCalificacionRequest): CalificacionDto
+    +actualizar(req: ActualizarCalificacionRequest): CambioCalificacionDto
+    +listar(): List<CalificacionDto>
+  }
+  class ReporteController {
+    +generar(req: GenerarReporteRequest): ReporteDto
+    +listar(): List<ReporteDto>
+  }
+  class NotificacionController {
+    +crear(req: CrearNotificacionRequest): NotificacionDto
+    +listar(): List<NotificacionDto>
+  }
+  class DashboardController {
+    +obtener(): ResumenDashboard
+  }
+  class BusquedaController {
+    +usuarios(q: String): List<UsuarioDto>
+    +asignaturas(q: String): List<AsignaturaDto>
+  }
+}
+}
+
+together {
+package "Services" {
+  class AuthService {
+    +login(req: LoginRequest): LoginResponse
+    +registrar(req: CrearUsuarioRequest): String
+    +solicitarReset(usuarioId: Integer): String
+    +consumirReset(token: String): String
+  }
+  class UsuarioService {
+    +crear(req: CrearUsuarioRequest): UsuarioDto
+    +listar(): List<UsuarioDto>
+    +obtener(id: Integer): UsuarioDto
+    +buscarPorUsername(username: String): UsuarioDto
+  }
+  class RolService {
+    +crear(req: CrearRolRequest): RolDto
+    +listar(): List<RolDto>
+    +obtenerEntidad(id: Integer): Rol
+  }
+  class DocenteService {
+    +crear(req: CrearDocenteRequest): Docente
+    +obtenerEntidad(id: Integer): Docente
+  }
+  class EstudianteService {
+    +crear(req: CrearEstudianteRequest): Estudiante
+    +obtenerEntidad(id: Integer): Estudiante
+  }
+  class AdministradorService {
+    +crear(usuarioId: Integer): Administrador
+    +obtenerEntidad(id: Integer): Administrador
+  }
+  class AsignaturaService {
+    +crear(req: CrearAsignaturaRequest): AsignaturaDto
+    +listar(): List<AsignaturaDto>
+    +obtenerEntidad(id: Integer): Asignatura
+  }
+  class InscripcionService {
+    +crear(req: CrearInscripcionRequest): InscripcionDto
+    +listar(): List<InscripcionDto>
+    +obtenerEntidad(id: Integer): Inscripcion
+  }
+  class CalificacionService {
+    +crear(req: CrearCalificacionRequest): CalificacionDto
+    +actualizarNota(req: ActualizarCalificacionRequest): CambioCalificacionDto
+    +listar(): List<CalificacionDto>
+  }
+  class ReporteService {
+    +generar(req: GenerarReporteRequest): ReporteDto
+    +listar(): List<ReporteDto>
+  }
+  class HistorialAcademicoService {
+    +crear(estudiante: Estudiante, califs: List<Calificacion>): HistorialAcademico
+    +obtenerEntidad(id: Integer): HistorialAcademico
+  }
+  class NotificacionService {
+    +enviar(req: CrearNotificacionRequest): NotificacionDto
+    +listar(): List<NotificacionDto>
+  }
+  class DashboardService {
+    +obtenerResumen(): ResumenDashboard
+  }
+  class BusquedaService {
+    +buscarUsuariosPorNombre(q: String): List<UsuarioDto>
+    +buscarAsignaturas(q: String): List<AsignaturaDto>
+  }
+}
+}
+
+together {
+package "Repositories" {
+  interface UsuarioRepository {
+    +save(u: Usuario): Usuario
+    +findAll(): List<Usuario>
+    +findById(id: Integer): Optional<Usuario>
+    +findByUsername(username: String): Optional<Usuario>
+  }
+  interface RolRepository {
+    +save(r: Rol): Rol
+    +findAll(): List<Rol>
+    +findById(id: Integer): Optional<Rol>
+  }
+  interface DocenteRepository {
+    +save(d: Docente): Docente
+    +findAll(): List<Docente>
+    +findById(id: Integer): Optional<Docente>
+  }
+  interface EstudianteRepository {
+    +save(e: Estudiante): Estudiante
+    +findAll(): List<Estudiante>
+    +findById(id: Integer): Optional<Estudiante>
+  }
+  interface AdministradorRepository {
+    +save(a: Administrador): Administrador
+    +findAll(): List<Administrador>
+    +findById(id: Integer): Optional<Administrador>
+  }
+  interface AsignaturaRepository {
+    +save(a: Asignatura): Asignatura
+    +findAll(): List<Asignatura>
+    +findById(id: Integer): Optional<Asignatura>
+  }
+  interface InscripcionRepository {
+    +save(i: Inscripcion): Inscripcion
+    +findAll(): List<Inscripcion>
+    +findById(id: Integer): Optional<Inscripcion>
+  }
+  interface CalificacionRepository {
+    +save(c: Calificacion): Calificacion
+    +findAll(): List<Calificacion>
+    +findById(id: Integer): Optional<Calificacion>
+  }
+  interface CambioCalificacionRepository {
+    +save(cc: CambioCalificacion): CambioCalificacion
+    +findAll(): List<CambioCalificacion>
+    +findById(id: Integer): Optional<CambioCalificacion>
+  }
+  interface HistorialAcademicoRepository {
+    +save(h: HistorialAcademico): HistorialAcademico
+    +findAll(): List<HistorialAcademico>
+    +findById(id: Integer): Optional<HistorialAcademico>
+  }
+  interface ReporteRepository {
+    +save(rp: Reporte): Reporte
+    +findAll(): List<Reporte>
+    +findById(id: Integer): Optional<Reporte>
+  }
+  interface NotificacionRepository {
+    +save(n: Notificacion): Notificacion
+    +findAll(): List<Notificacion>
+    +findById(id: Integer): Optional<Notificacion>
+  }
+  interface PasswordResetTokenRepository {
+    +save(t: PasswordResetToken): PasswordResetToken
+    +findAll(): List<PasswordResetToken>
+    +findById(id: Integer): Optional<PasswordResetToken>
+    +findByToken(token: String): Optional<PasswordResetToken>
+  }
+}
+}
+
+together {
+package "Adapters" {
+  class EmailAdapter {
+    +enviarCorreo(destino: String, asunto: String, cuerpo: String): void
+  }
+  class PdfGeneratorAdapter {
+    +generarRutaTemporal(prefijo: String): String
+  }
+}
+}
+
+together {
+package "Domain" {
+  package "Usuarios y Seguridad" {
+    class Usuario {
+      -id: Integer
+      -nombre: String
+      -apellido: String
+      -username: String
+      -correo: String
+      -contrasena: String
+      -rol: Rol
+    }
+    class Rol {
+      -id: Integer
+      -nombre: RolNombre
+      -permisos: List<String>
+    }
+    class Administrador {
+      -id: Integer
+      -usuario: Usuario
+    }
+    class Docente {
+      -id: Integer
+      -departamento: String
+      -usuario: Usuario
+    }
+    class Estudiante {
+      -id: Integer
+      -programa: String
+      -semestre: int
+      -usuario: Usuario
+    }
+    class Notificacion {
+      -id: Integer
+      -tipo: TipoNotificacion
+      -mensaje: String
+      -fechaEnvio: LocalDate
+      -leida: boolean
+      -usuario: Usuario
+    }
+    class PasswordResetToken {
+      -id: Integer
+      -token: String
+      -fechaExpiracion: LocalDateTime
+      -usado: boolean
+      -usuario: Usuario
+    }
+  }
+
+  package "Académico" {
+    class Asignatura {
+      -idAsignatura: Integer
+      -codigo: String
+      -nombre: String
+      -creditos: int
+      -activa: boolean
+      -docente: Docente
+    }
+    class Inscripcion {
+      -idInscripcion: Integer
+      -semestre: int
+      -fechaInscripcion: LocalDate
+      -estado: EstadoInscripcion
+      -estudiante: Estudiante
+      -asignatura: Asignatura
+    }
+    class Calificacion {
+      -idCalificacion: Integer
+      -notaParcial: double
+      -notaFinal: double
+      -retroalimentacion: String
+      -fechaRegistro: LocalDate
+      -activa: boolean
+      -inscripcion: Inscripcion
+      -docente: Docente
+    }
+    class CambioCalificacion {
+      -idCambio: Integer
+      -fechaCambio: LocalDate
+      -valorAnterior: double
+      -valorNuevo: double
+      -motivo: String
+      -calificacion: Calificacion
+      -administrador: Administrador
+    }
+    class HistorialAcademico {
+      -idHistorial: Integer
+      -promedioAcumulado: double
+      -estudiante: Estudiante
+      -calificaciones: List<Calificacion>
+    }
+    class Reporte {
+      -idReporte: Integer
+      -semestre: int
+      -fechaGeneracion: LocalDate
+      -rutaArchivoPdf: String
+      -numeroUnidadesCredito: Integer
+      -estudiante: Estudiante
+      -historialAcademico: HistorialAcademico
+      -calificaciones: List<Calificacion>
+  }
+}
+}
+
+package "MongoDB" {
+  database "Mongo Cluster" as MongoDB
+}
+
+' Orden visual entre capas
+Domain -[hidden]down-> Controllers
+Controllers -[hidden]down-> Services
+Services -[hidden]down-> Repositories
+Repositories -[hidden]down-> Adapters
+Adapters -[hidden]down-> MongoDB
+
+' --- Wiring ---
+Controllers --> Services
+AuthController --> AuthService
+UsuarioController --> UsuarioService
+RolController --> RolService
+DocenteController --> DocenteService
+EstudianteController --> EstudianteService
+AdministradorController --> AdministradorService
+AsignaturaController --> AsignaturaService
+InscripcionController --> InscripcionService
+CalificacionController --> CalificacionService
+ReporteController --> ReporteService
+NotificacionController --> NotificacionService
+DashboardController --> DashboardService
+BusquedaController --> BusquedaService
+
+Services --> Repositories
+AuthService --> PasswordResetTokenRepository
+AuthService --> UsuarioRepository
+AuthService --> RolService
+UsuarioService --> UsuarioRepository
+RolService --> RolRepository
+DocenteService --> DocenteRepository
+DocenteService --> UsuarioService
+EstudianteService --> EstudianteRepository
+EstudianteService --> UsuarioService
+AdministradorService --> AdministradorRepository
+AdministradorService --> UsuarioService
+AsignaturaService --> AsignaturaRepository
+AsignaturaService --> DocenteService
+InscripcionService --> InscripcionRepository
+InscripcionService --> EstudianteService
+InscripcionService --> AsignaturaService
+CalificacionService --> CalificacionRepository
+CalificacionService --> CambioCalificacionRepository
+CalificacionService --> InscripcionService
+CalificacionService --> DocenteService
+CalificacionService --> AdministradorService
+ReporteService --> ReporteRepository
+ReporteService --> CalificacionRepository
+ReporteService --> HistorialAcademicoService
+ReporteService --> EstudianteService
+NotificacionService --> NotificacionRepository
+NotificacionService --> UsuarioService
+DashboardService --> UsuarioRepository
+DashboardService --> AsignaturaRepository
+DashboardService --> InscripcionRepository
+DashboardService --> CalificacionRepository
+BusquedaService --> UsuarioRepository
+BusquedaService --> AsignaturaRepository
+HistorialAcademicoService --> HistorialAcademicoRepository
+
+Repositories --> MongoDB
+
+' Adapters
+NotificacionService ..> EmailAdapter
+EmailAdapter ..> SMTP
+ReporteService ..> PdfGeneratorAdapter
+PdfGeneratorAdapter ..> MongoDB : guarda ruta (opcional)
+
+@enduml
